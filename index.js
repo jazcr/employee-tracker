@@ -15,6 +15,7 @@ function mainMenu() {
             "-Add department",
             "-Add role",
             "-Update an employee's role",
+            "-Update an employee's manager",
             "- ***Exit***"
         ],
         name: "choice"
@@ -45,6 +46,8 @@ function mainMenu() {
             addRolePrompt();
         } else if (choice === "-Update an employee's role") {
             updateRolePrompt();
+        } else if (choice === "-Update an employee's manager") {
+            updateManagerPrompt();
         } else {
             task.endConnection();
         }
@@ -185,9 +188,9 @@ function addRolePrompt() {
 function updateRolePrompt() {
     task.getEmployees()
     .then(function(res) {
-        const empArray = [];
-        for (let i=0; i<res.length; i++) {
-            empArray.push(res[i].name);
+        const emptArr = [];
+        for (let i = 0; i < res.length; i++) {
+            emptArr.push(res[i].name);
         }
         task.getRoles()
         .then(function(response) {
@@ -198,7 +201,7 @@ function updateRolePrompt() {
             inquirer.prompt([{
                 type: "list",
                 message: "Choose the employee whose role you'd like to update",
-                choices: empArray,
+                choices: emptArr,
                 name: "employee"
             },
             {
@@ -207,8 +210,8 @@ function updateRolePrompt() {
                 choices: roleArray,
                 name: "role"
             }]).then(function({employee, role}) {
-                const empId = res[empArray.indexOf(employee)].id;
-                task.updateRole(empId, role)
+                const emptId = res[emptArr.indexOf(employee)].id;
+                task.updateRole(emptId, role)
                 .then(function() {
                     console.log("\n");
                     mainMenu();
@@ -216,6 +219,41 @@ function updateRolePrompt() {
             })
         })
     })
-}
+};
+
+function updateManagerPrompt() {
+    task.getEmployees()
+    .then(function(employees) {
+        const emptArr = [];
+        for (let i=0; i<employees.length; i++) {
+            emptArr.push(employees[i].name);
+        }
+        inquirer.prompt([{
+            type: "list",
+            message: "Select the employee whose manager you would like to update",
+            choices: emptArr,
+            name: "employee"
+        },
+        {
+            type: "list",
+            message: "Select the employee's new manager",
+            choices: emptArr,
+            name: "manager"
+        }]).then(function({employee, manager}) {
+            if (employee === manager) {
+                console.log("Error - you cannot assign an employee to manage him/herself!");
+                mainMenu();
+            } else {
+                const emptId = employees[emptArr.indexOf(employee)].id;
+                const mgrId = employees[emptArr.indexOf(manager)].id;
+                task.updateManager(emptId, mgrId)
+                .then(function() {
+                    console.log("\n");
+                    mainMenu();
+                });
+            }
+        });
+    });
+};
 
 mainMenu();
