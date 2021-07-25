@@ -190,7 +190,7 @@ const task = {
     },
 
     updateManager: function(emptId, newMgrId) {
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(res, rej) {
             const queryString = "UPDATE employees SET ? WHERE ?";
             connection.query(queryString,
                 [{
@@ -201,15 +201,28 @@ const task = {
                 }],
                 function(err, result) {
                     if (err) {
-                        return reject(err);
+                        return rej(err);
                     }
                     console.log("Employee's manager successfully updated!");
-                    return resolve();
+                    return res();
                 });
         });
         
     },
 
+    deleteRecord: function(tableInput, recordId) {
+        return new Promise(function(res, rej) {
+            const queryString = "DELETE FROM ?? WHERE id = ?";
+            connection.query(queryString, [tableInput, recordId], function(err, result) {
+                if (err) {
+                    return rej(err);
+                }
+                console.log("Record successfully deleted");
+                return res();
+            });
+        });
+        
+    },
     endConnection: function() {
         connection.end();
     }
